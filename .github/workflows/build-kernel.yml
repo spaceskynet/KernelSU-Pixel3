@@ -1,4 +1,4 @@
-name: Build example
+name: Build Kernel
 on:
   push:
   pull_request:
@@ -27,7 +27,7 @@ jobs:
 
     - name: Read the configuration
       run: |
-        CONFIG_ENV=config.properties.example
+        CONFIG_ENV=config.env
         echo "KERNEL_SOURCE=$(cat $CONFIG_ENV | grep -w "KERNEL_SOURCE" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
         echo "KERNEL_SOURCE_BRANCH=$(cat $CONFIG_ENV | grep -w "KERNEL_SOURCE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
         echo "KERNEL_CONFIG=$(cat $CONFIG_ENV | grep -w "KERNEL_CONFIG" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
@@ -185,19 +185,7 @@ jobs:
     - name: Download the kernel source code
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        if [[ ${{ env.KERNEL_SOURCE }} =~ git ]]; then
-          if [[ ${{ env.KERNEL_SOURCE }} == *'.tar.gz' ]]; then
-            wget -O android-kernel.tar.gz ${{ env.KERNEL_SOURCE }}
-            mkdir android-kernel
-            tar -C android-kernel/ -zxvf android-kernel.tar.gz
-          else
-            git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
-          fi        
-        else
-          wget -O android-kernel.zip ${{ env.KERNEL_SOURCE }}
-          mkdir android-kernel
-          unzip android-kernel.zip -d android-kernel/
-        fi
+        git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
 
     - name: Download source boot image file for KernelSU 
       if: env.BUILD_KERNELSU_BOOT_IMG == 'true'
